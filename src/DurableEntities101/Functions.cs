@@ -10,7 +10,7 @@ using DurableEntities101.Entities;
 
 namespace DurableEntities101
 {
-    public static class Function1
+    public static class Functions
     {
         // Event Grid Functions
 

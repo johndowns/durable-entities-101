@@ -85,7 +85,7 @@ namespace DurableEntities101.Entities
 
         public Task SendServiceBusMessage()
         {
-            _log.LogInformation("This is where I'd send a message to Service Bus :)");
+            _log.LogInformation($"This is where I'd send a message to Service Bus :) I'd say something like: \"{_context.EntityKey}\" is ready to be processed now.");
             return Task.CompletedTask;
         }
     }
