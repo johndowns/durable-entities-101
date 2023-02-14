@@ -81,18 +81,15 @@ namespace DurableEntities101.Entities
             
             if (FileCount >= ExpectedFileCount || LastReceivedFileTimeStampUtc <= DateTime.UtcNow.Subtract(UploadTimeout))
             {
-                await SendServiceBusMessage();
+                // Send the message to Service Bus to tell the next system to process the folder's contents.
+                await _serviceBusSender.SendMessageAsync(new ServiceBusMessage(_context.EntityKey));
+
                 State = BlobFolderState.Done;
                 return;
             }
 
-            // Automatically signal the entity again in a few seconds.
+            // We need to keep checking. Automatically signal the entity again in a few seconds.
             _context.SignalEntity(_context.EntityId, DateTime.UtcNow.Add(PollingFrequency), nameof(CheckLastUpdateTime));
-        }
-
-        public Task SendServiceBusMessage()
-        {
-            return _serviceBusSender.SendMessageAsync(new ServiceBusMessage(_context.EntityKey));
         }
     }
 }
