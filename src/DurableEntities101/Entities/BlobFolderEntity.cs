@@ -1,11 +1,11 @@
-﻿using Microsoft.Azure.WebJobs.Extensions.DurableTask;
-using Microsoft.Azure.WebJobs;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Threading.Tasks;
-using DurableEntities101.Enums;
-using Microsoft.Extensions.Logging;
 using Azure.Messaging.ServiceBus;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.DurableTask;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using DurableEntities101.Enums;
 
 namespace DurableEntities101.Entities
 {
@@ -21,7 +21,7 @@ namespace DurableEntities101.Entities
         [FunctionName(nameof(BlobFolderEntity))]
         public static Task Run(
             [EntityTrigger] IDurableEntityContext ctx,
-            [ServiceBus("processblobfolder", Connection = "MyConnection")] Azure.Messaging.ServiceBus.ServiceBusSender serviceBusSender,
+            [ServiceBus("processblobfolder", Connection = "MyConnection")] ServiceBusSender serviceBusSender,
             ILogger log)
         {
             return ctx.DispatchAsync<BlobFolderEntity>(ctx, serviceBusSender, log);
