@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using DurableEntities101.Enums;
 using Microsoft.Extensions.Logging;
+using Azure.Messaging.ServiceBus;
 
 namespace DurableEntities101.Entities
 {
@@ -18,22 +19,28 @@ namespace DurableEntities101.Entities
     {
         #region Entity Function
         [FunctionName(nameof(BlobFolderEntity))]
-        public static Task Run([EntityTrigger] IDurableEntityContext ctx, ILogger log)
+        public static Task Run(
+            [EntityTrigger] IDurableEntityContext ctx,
+            [ServiceBus("processblobfolder", Connection = "MyConnection")] Azure.Messaging.ServiceBus.ServiceBusSender serviceBusSender,
+            ILogger log)
         {
-            return ctx.DispatchAsync<BlobFolderEntity>(ctx, log);
+            return ctx.DispatchAsync<BlobFolderEntity>(ctx, serviceBusSender, log);
         }
         #endregion
 
         #region Constructor
-        public BlobFolderEntity(IDurableEntityContext context, ILogger log)
+        public BlobFolderEntity(IDurableEntityContext context, ServiceBusSender serviceBusSender, ILogger log)
         {
             _context = context;
+            _serviceBusSender = serviceBusSender;
             _log = log;
         }
         #endregion
 
         #region Fields
         private readonly IDurableEntityContext _context;
+
+        private readonly ServiceBusSender _serviceBusSender;
 
         private readonly ILogger _log;
         #endregion
@@ -54,7 +61,7 @@ namespace DurableEntities101.Entities
 
         private readonly TimeSpan UploadTimeout = TimeSpan.FromMinutes(5);
 
-        private const int ExpectedFileCount = 15;
+        private const int ExpectedFileCount = 3;
         #endregion
 
         public async Task FileUploaded(DateTime timeReceivedUtc)
@@ -85,8 +92,7 @@ namespace DurableEntities101.Entities
 
         public Task SendServiceBusMessage()
         {
-            _log.LogInformation($"This is where I'd send a message to Service Bus :) I'd say something like: \"{_context.EntityKey}\" is ready to be processed now.");
-            return Task.CompletedTask;
+            return _serviceBusSender.SendMessageAsync(new ServiceBusMessage(_context.EntityKey));
         }
     }
 }
