@@ -19,7 +19,7 @@ namespace DurableEntities101
             [DurableClient] IDurableEntityClient entityClient,
             ILogger log)
         {
-            log.LogInformation("Event Grid trigger received notification of file added to folder.");
+            log.LogInformation("Event Grid trigger received notification of file added to folder. Subject: {subject}", eventGridEvent.Subject);
 
             // Get the name of the blob folder from the Event Grid message.
             var match = Regex.Match(eventGridEvent.Subject, BlobSubjectFolderNameRegex);

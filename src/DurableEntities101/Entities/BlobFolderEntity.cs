@@ -82,6 +82,7 @@ namespace DurableEntities101.Entities
             if (FileCount >= ExpectedFileCount || LastReceivedFileTimeStampUtc <= DateTime.UtcNow.Subtract(UploadTimeout))
             {
                 // Send the message to Service Bus to tell the next system to process the folder's contents.
+                _log.LogInformation("Sending message to Service Bus with entity key {entityKey}", _context.EntityKey);
                 await _serviceBusSender.SendMessageAsync(new ServiceBusMessage(_context.EntityKey));
 
                 State = BlobFolderState.Done;
